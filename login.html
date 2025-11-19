@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Login</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script>
+    // optional: extend Tailwind colors slightly for a softer lavender palette
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'lavender-50': '#FBF8FF',
+            'lavender-100': '#F5F3FF',
+            'lavender-200': '#EEE9FF',
+            'lavender-300': '#E7DEFF',
+            'lavender-400': '#D9C8FF',
+            'lavender-500': '#C4A7FF',
+            'lavender-600': '#A78BFA',
+            'lavender-700': '#7C3AED',
+            'lavender-800': '#6D28D9'
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-lavender-50 min-h-screen flex items-center justify-center p-6">
+  <div class="w-full max-w-md bg-white rounded-xl shadow-md p-6">
+    <h2 class="text-2xl font-bold mb-2 text-lavender-800">Login</h2>
+    <p class="text-sm text-lavender-600 mb-4">Enter your Gmail and password to proceed.</p>
+
+    <form id="loginForm" class="space-y-4" novalidate>
+      <div>
+        <label class="block text-sm text-lavender-700">Gmail</label>
+        <input id="email" name="email" required type="email"
+               class="mt-1 block w-full border rounded px-3 py-2 border-lavender-200 focus:outline-none focus:ring-2 focus:ring-lavender-200"
+               placeholder="you@gmail.com" />
+        <p id="emailHint" class="text-xs text-lavender-500 mt-1">Only addresses ending with <code>@gmail.com</code>.</p>
+      </div>
+
+      <div>
+        <label class="block text-sm text-lavender-700">Password</label>
+        <input id="password" name="password" required type="password" minlength="6"
+               class="mt-1 block w-full border rounded px-3 py-2 border-lavender-200 focus:outline-none focus:ring-2 focus:ring-lavender-200"
+               placeholder="At least 6 characters" />
+        <p id="passHint" class="text-xs text-lavender-500 mt-1">Minimum 6 characters.</p>
+      </div>
+
+      <button type="submit" class="w-full bg-lavender-600 hover:bg-lavender-700 text-white rounded px-4 py-2 transition">
+        Log in
+      </button>
+    </form>
+
+    
+
+<script>
+(function(){
+  const form = document.getElementById('loginForm');
+  const emailEl = document.getElementById('email');
+  const passEl = document.getElementById('password');
+
+  // strict gmail regex
+  const gmailRe = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
+
+  // prevent actual form submission (no server). Use validation + redirect
+  form.addEventListener('submit', function(e){
+    e.preventDefault(); // important: stop the form's default submit
+
+    const email = (emailEl.value || '').trim();
+    const pass = passEl.value || '';
+
+    // validation
+    if (!gmailRe.test(email)) {
+      alert('Please enter a valid Gmail address ending with @gmail.com');
+      emailEl.focus();
+      return;
+    }
+    if (pass.length < 6) {
+      alert('Password must be at least 6 characters long.');
+      passEl.focus();
+      return;
+    }
+
+    // success: redirect to students.html
+    // ensure students.html exists in same folder
+    window.location.href = 't.html';
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,1689 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StudyGenie - AI Learning Platform</title>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mermaid/10.6.1/mermaid.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
+    <script src="https://download.agora.io/sdk/release/AgoraRTC_N-4.19.0.js"></script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #0f0f1e;
+            min-height: 100vh;
+            padding: 0;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            background-size: 400% 400%;
+            animation: gradientFlow 15s ease infinite;
+        }
+
+        @keyframes gradientFlow {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .bg-animation::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 20% 50%, rgba(102, 126, 234, 0.3) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 80%, rgba(240, 147, 251, 0.3) 0%, transparent 50%),
+                        radial-gradient(circle at 40% 20%, rgba(118, 75, 162, 0.3) 0%, transparent 50%);
+            animation: float 20s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(30px, -30px) scale(1.1); }
+            66% { transform: translate(-20px, 20px) scale(0.9); }
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px; /* Reduced margin */
+            position: relative;
+            padding: 60px 40px;
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(30px);
+            border-radius: 40px;
+            border: 2px solid rgba(255, 255, 255, 0.18);
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.3),
+                        inset 0 0 60px rgba(255, 255, 255, 0.05);
+            animation: headerFloat 6s ease-in-out infinite;
+        }
+
+        @keyframes headerFloat {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        h1 {
+            font-size: 5em;
+            font-weight: 900;
+            background: linear-gradient(135deg, #fff 0%, #a78bfa 50%, #fbbf24 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 15px;
+            letter-spacing: -3px;
+            text-shadow: 0 0 80px rgba(255, 255, 255, 0.3);
+            animation: titleGlow 3s ease-in-out infinite;
+        }
+
+        @keyframes titleGlow {
+            0%, 100% { filter: brightness(1); }
+            50% { filter: brightness(1.2); }
+        }
+
+        .subtitle {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1.3em;
+            font-weight: 500;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            animation: subtitlePulse 2s ease-in-out infinite;
+        }
+
+        @keyframes subtitlePulse {
+            0%, 100% { opacity: 0.8; }
+            50% { opacity: 1; }
+        }
+        
+        /* --- TAB NAVIGATION STYLES --- */
+        .tab-navigation {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 40px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.18);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            flex-wrap: wrap; /* Added for responsiveness */
+        }
+
+        .tab-button {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 15px;
+            font-size: 1.1em;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.7);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            flex-grow: 1;
+            text-align: center;
+            max-width: 300px;
+        }
+
+        .tab-button:hover {
+            background: rgba(255, 255, 255, 0.2);
+            color: #fff;
+        }
+
+        .tab-button.active {
+            background: linear-gradient(135deg, #667eea 0%, #a78bfa 100%);
+            color: white;
+            box-shadow: 0 8px 30px rgba(102, 126, 234, 0.5);
+            transform: translateY(-3px);
+        }
+
+        .tab-content {
+            display: none; /* Hide all by default */
+        }
+
+        .tab-content.active {
+            display: block; /* Show active tab */
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        /* --- END TAB STYLES --- */
+        
+        .card {
+            background: rgba(255, 255, 255, 0.09);
+            backdrop-filter: blur(30px);
+            border-radius: 30px;
+            padding: 40px;
+            margin-bottom: 30px;
+            border: 2px solid rgba(255, 255, 255, 0.18);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3),
+                        inset 0 0 80px rgba(255, 255, 255, 0.03);
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.7s;
+        }
+
+        .card:hover::before {
+            left: 100%;
+        }
+
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 30px 90px rgba(102, 126, 234, 0.4),
+                        inset 0 0 100px rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .card-title {
+            font-size: 2em;
+            font-weight: 800;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            color: #fff;
+            text-shadow: 0 0 30px rgba(255, 255, 255, 0.3);
+        }
+
+        .card-subtitle {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 1.05em;
+            margin-bottom: 25px;
+            font-weight: 400;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 25px;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(20px);
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 1em;
+            margin-bottom: 25px;
+            border: 2px solid rgba(255, 255, 255, 0.25);
+            color: #fff;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #10b981;
+            box-shadow: 0 0 20px #10b981;
+            animation: statusPulse 2s infinite;
+        }
+
+        @keyframes statusPulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.2); opacity: 0.7; }
+        }
+
+        .video-container {
+            display: flex;
+            gap: 25px;
+            flex-wrap: wrap;
+            margin-top: 25px;
+        }
+
+        .video-box {
+            width: 320px; 
+            height: 240px; 
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            border-radius: 25px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5),
+                        0 0 0 3px rgba(102, 126, 234, 0.5);
+            transition: all 0.4s;
+        }
+
+        .video-box:hover {
+            transform: scale(1.05);
+            box-shadow: 0 30px 80px rgba(102, 126, 234, 0.6);
+        }
+        
+        .remote-player-box {
+            width: 280px; 
+            height: 200px; 
+            background: linear-gradient(135deg, #2d3748 0%, #1a202c 100%);
+            border-radius: 25px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.4);
+            transition: all 0.4s;
+        }
+
+        .remote-player-box:hover {
+            transform: scale(1.05);
+        }
+
+        .player-label {
+            position: absolute;
+            bottom: 15px;
+            left: 15px;
+            background: rgba(0, 0, 0, 0.85);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 12px;
+            font-size: 0.9em;
+            font-weight: 700;
+            backdrop-filter: blur(15px);
+            z-index: 10;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        .input-section {
+            margin-bottom: 30px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 15px;
+            color: #fff;
+            font-weight: 700;
+            font-size: 1.15em;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+        }
+
+        textarea {
+            width: 100%;
+            padding: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            font-size: 16px;
+            font-family: inherit;
+            resize: vertical;
+            min-height: 200px;
+            transition: all 0.3s;
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(20px);
+            color: #fff;
+        }
+
+        textarea::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            background: rgba(255, 255, 255, 0.12);
+            box-shadow: 0 0 30px rgba(102, 126, 234, 0.4),
+                        inset 0 0 20px rgba(255, 255, 255, 0.05);
+        }
+
+        input[type="file"] {
+            display: block;
+            margin-top: 15px;
+            padding: 25px;
+            border: 3px dashed rgba(255, 255, 255, 0.3);
+            border-radius: 20px;
+            width: 100%;
+            cursor: pointer;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            transition: all 0.3s;
+            font-family: inherit;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        input[type="file"]:hover {
+            border-color: #667eea;
+            background: rgba(102, 126, 234, 0.15);
+            box-shadow: 0 0 30px rgba(102, 126, 234, 0.3);
+        }
+
+        #pdfStatus {
+            margin-top: 20px;
+            padding: 15px 20px;
+            border-radius: 15px;
+            font-size: 1em;
+            font-weight: 600;
+            background: rgba(102, 126, 234, 0.2);
+            border-left: 4px solid #667eea;
+            color: #fff;
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.2);
+        }
+
+        .button-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        button {
+            padding: 22px 35px;
+            border: none;
+            border-radius: 18px;
+            font-size: 1.1em;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            font-family: inherit;
+            position: relative;
+            overflow: hidden;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        button::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        button:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        button:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+        }
+
+        button:active {
+            transform: translateY(-2px) scale(1.02);
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .btn-summarize {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 10px 40px rgba(102, 126, 234, 0.5);
+        }
+
+        .btn-summarize:hover:not(:disabled) {
+            box-shadow: 0 20px 60px rgba(102, 126, 234, 0.7);
+        }
+
+        .btn-quiz {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            box-shadow: 0 10px 40px rgba(240, 147, 251, 0.5);
+        }
+
+        .btn-quiz:hover:not(:disabled) {
+            box-shadow: 0 20px 60px rgba(240, 147, 251, 0.7);
+        }
+
+        .btn-diagram {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            box-shadow: 0 10px 40px rgba(79, 172, 254, 0.5);
+        }
+
+        .btn-diagram:hover:not(:disabled) {
+            box-shadow: 0 20px 60px rgba(79, 172, 254, 0.7);
+        }
+
+        .clear-history-btn {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 15px 30px;
+            font-size: 1em;
+            margin-top: 20px;
+            box-shadow: 0 10px 40px rgba(240, 147, 251, 0.4);
+        }
+
+        .result-section, .quiz-section, .diagram-section {
+            display: none;
+            animation: slideUpScale 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes slideUpScale {
+            from { 
+                opacity: 0;
+                transform: translateY(50px) scale(0.95);
+            }
+            to { 
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .result-box {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(30px);
+            padding: 35px;
+            border-radius: 25px;
+            margin-bottom: 30px;
+            border: 2px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.3),
+                        inset 0 0 60px rgba(255, 255, 255, 0.03);
+        }
+
+        .result-box h2 {
+            color: #fff;
+            margin-bottom: 25px;
+            font-size: 2em;
+            font-weight: 800;
+            text-shadow: 0 0 30px rgba(255, 255, 255, 0.3);
+        }
+
+        .result-box p {
+            color: rgba(255, 255, 255, 0.9);
+            line-height: 1.9;
+            font-size: 1.1em;
+        }
+
+        .topics-list {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .topics-list li {
+            padding: 18px 25px;
+            margin-bottom: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border-radius: 15px;
+            border-left: 5px solid #667eea;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+            transition: all 0.4s;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .topics-list li:hover {
+            transform: translateX(15px) scale(1.02);
+            box-shadow: 0 12px 40px rgba(102, 126, 234, 0.4);
+            background: rgba(102, 126, 234, 0.2);
+        }
+
+        .question-card {
+            background: rgba(255, 255, 255, 0.09);
+            backdrop-filter: blur(30px);
+            padding: 30px;
+            margin-bottom: 30px;
+            border-radius: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.3);
+            transition: all 0.4s;
+        }
+
+        .question-card:hover {
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+            transform: scale(1.02);
+        }
+
+        .question-text {
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: #fff;
+            font-size: 1.2em;
+            line-height: 1.7;
+        }
+
+        .options .option {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(20px);
+            padding: 18px 25px;
+            margin: 12px 0;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.4s;
+            border: 2px solid rgba(255, 255, 255, 0.15);
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .options .option:hover {
+            background: rgba(102, 126, 234, 0.25);
+            border-color: #667eea;
+            transform: translateX(10px);
+            box-shadow: 0 8px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        .options .option.selected {
+            background: rgba(167, 139, 250, 0.3);
+            border-color: #a78bfa;
+            box-shadow: 0 10px 40px rgba(167, 139, 250, 0.5);
+        }
+
+        .options .option.correct {
+            background: rgba(16, 185, 129, 0.3);
+            border-color: #10b981;
+            box-shadow: 0 10px 40px rgba(16, 185, 129, 0.5);
+        }
+
+        .options .option.wrong {
+            background: rgba(239, 68, 68, 0.3);
+            border-color: #ef4444;
+            box-shadow: 0 10px 40px rgba(239, 68, 68, 0.5);
+        }
+
+        .score {
+            text-align: center;
+            font-size: 2.5em;
+            font-weight: 900;
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-top: 30px;
+            padding: 25px;
+            border-radius: 20px;
+            text-shadow: 0 0 50px rgba(251, 191, 36, 0.5);
+        }
+
+        .history-item {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(30px);
+            padding: 25px;
+            margin-bottom: 18px;
+            border-radius: 18px;
+            border-left: 5px solid #667eea;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .history-item:hover {
+            transform: translateX(15px) scale(1.02);
+            box-shadow: 0 20px 60px rgba(102, 126, 234, 0.5);
+            border-left-width: 8px;
+            background: rgba(102, 126, 234, 0.15);
+        }
+
+        .history-item-title {
+            font-weight: 800;
+            color: #fff;
+            margin-bottom: 10px;
+            font-size: 1.15em;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+        }
+
+        .history-item-preview {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 1em;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            margin-bottom: 10px;
+        }
+
+        .history-item-date {
+            font-size: 0.9em;
+            color: rgba(255, 255, 255, 0.5);
+            font-weight: 600;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 50px;
+            margin: 40px 0;
+        }
+
+        .loading-spinner {
+            width: 70px;
+            height: 70px;
+            border: 5px solid rgba(255, 255, 255, 0.2);
+            border-top-color: #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+            box-shadow: 0 0 30px rgba(102, 126, 234, 0.5);
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            color: #fff;
+            font-size: 1.3em;
+            font-weight: 700;
+            text-shadow: 0 0 30px rgba(255, 255, 255, 0.5);
+        }
+
+        hr {
+            /* Removed as we are using tabs now */
+            display: none;
+        }
+
+        .diagram-container {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.3);
+        }
+
+        .alert-box {
+            background: rgba(239, 68, 68, 0.2);
+            border: 2px solid #ef4444;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            color: #fff;
+        }
+        
+        .status-box {
+            background: linear-gradient(135deg, #a78bfa 0%, #667eea 100%);
+            border: 2px solid #667eea;
+            border-radius: 15px;
+            padding: 25px;
+            margin: 20px 0 40px;
+            color: white;
+            box-shadow: 0 10px 40px rgba(102, 126, 234, 0.5);
+        }
+
+        .status-box h3 {
+            margin-bottom: 10px;
+            font-weight: 700;
+            font-size: 1.5em;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px 15px;
+            }
+
+            h1 {
+                font-size: 3em;
+            }
+
+            .header {
+                padding: 40px 25px;
+            }
+            
+            .tab-navigation {
+                gap: 10px;
+            }
+            
+            .tab-button {
+                padding: 15px 15px;
+                font-size: 1em;
+            }
+
+            .button-group {
+                grid-template-columns: 1fr;
+            }
+
+            .video-box, .remote-player-box {
+                width: 100%;
+            }
+
+            .card {
+                padding: 25px;
+            }
+        }
+
+        /* Scrollbar styles (kept from original) */
+        ::-webkit-scrollbar {
+            width: 12px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(102, 126, 234, 0.5);
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(135deg, #764ba2 0%, #f093fb 100%);
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-animation"></div>
+
+    <div class="container">
+        <div class="header">
+            <h1>📚 StudyGenie</h1>
+            <p class="subtitle">🚀 Next-Gen AI Learning Platform</p>
+        </div>
+        
+        <div class="tab-navigation">
+            <button class="tab-button active" id="btn-tools" onclick="showTab('tab-tools', this)">🛠️ Study With AI</button>
+            <button class="tab-button" id="btn-call" onclick="showTab('tab-call', this)">📞Connect With Friends </button>
+            <button class="tab-button" id="btn-history" onclick="showTab('tab-history', this)">📜 Recall Your History</button>
+        </div>
+        <div id="tab-tools" class="tab-content active">
+            
+                        
+            <div class="card input-section">
+                <label for="inputText">📝 Your Content</label>
+                <textarea id="inputText" placeholder="Paste your text, notes, articles, or study material here..."></textarea>
+                
+                <div style="margin-top: 30px;">
+                    <label for="pdfInput">📄 Upload PDF Document</label>
+                    <input type="file" id="pdfInput" accept=".pdf">
+                    <div id="pdfStatus"></div>
+                </div>
+            </div>
+
+            <div class="button-group">
+                <button class="btn-summarize" onclick="summarizeText()" id="summaryBtn">📝 Smart Summary</button>
+                <button class="btn-quiz" onclick="generateQuiz()" id="quizBtn">🎯 Generate Quiz</button>
+                <button class="btn-diagram" onclick="generateFlowchart()" id="diagramBtn">🎨 Create Flowchart</button>
+            </div>
+
+            <div class="loading" id="loading">
+                <div class="loading-spinner"></div>
+                <div class="loading-text">Processing your request...</div>
+            </div>
+
+            <div class="result-section" id="resultSection">
+                <div class="result-box">
+                    <h2>📄 Summary</h2>
+                    <p id="summary"></p>
+                </div>
+
+                <div class="result-box">
+                    <h2>🔑 Key Topics</h2>
+                    <ul class="topics-list" id="topics"></ul>
+                </div>
+            </div>
+
+            <div class="quiz-section" id="quizSection">
+                <div class="result-box">
+                    <h2>🎯 Quiz Time!</h2>
+                    <div id="quizContainer"></div>
+                    <button class="btn-quiz submit-quiz" onclick="submitQuiz()" id="submitBtn" style="display:none; width: 100%; margin-top: 20px;">Submit Quiz</button>
+                    <div class="score" id="score"></div>
+                </div>
+            </div>
+
+            <div class="diagram-section" id="diagramSection">
+                <div class="result-box">
+                    <h2>🎨 Visual Flowchart</h2>
+                    <p class="card-subtitle">A beautiful visual representation of your text</p>
+                    <div class="diagram-container">
+                        <div id="diagramContainer"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        
+        <div id="tab-call" class="tab-content">
+            <div class="card">
+                <h2 class="card-title">📞 Connect With Friends</h2>
+                <p class="card-subtitle">Connect with others for a collaborative study environment.</p>
+                <div id="callStatus" class="status-badge">
+                    <span class="status-dot"></span>
+                    <span>Ready to Connect</span>
+                </div>
+                
+                <div class="button-group">
+                    <button class="btn-summarize" onclick="joinCall()">▶️ Join Room</button>
+                    <button class="btn-quiz" onclick="leaveCall()">⏹️ Leave Call</button>
+                    <button class="btn-diagram" onclick="toggleScreenShare()" id="screenShareBtn">🖥️ Share Screen</button>
+                </div>
+
+                <div class="video-container">
+                    <div id="local-player" class="video-box">
+                        <span class="player-label">You</span>
+                    </div>
+                    
+                    <div id="remote-playerlist" style="display: flex; gap: 25px; flex-wrap: wrap;">
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        
+        <div id="tab-history" class="tab-content">
+            <div class="card history-section">
+                <h2 class="card-title">📜 Activity History</h2>
+                <p class="card-subtitle">Your last 10 sessions - Click to restore</p>
+                <div id="historyContainer">
+                    <p style="color: rgba(255,255,255,0.6); text-align: center; padding: 40px; font-size: 1.1em;">No history yet. Start your learning journey!</p>
+                </div>
+                <button class="clear-history-btn" onclick="clearHistory()">🗑️ Clear All</button>
+            </div>
+        </div>
+        
+    </div>
+
+    <script>
+        let AGORA_CLIENT = null;
+        const AGORA_APP_ID = 'f5325eaa6ee4438ba2bd726c1fd892a8';
+        let localTracks = { videoTrack: null, audioTrack: null };
+        let remoteUsers = {};
+        let isScreenSharing = false;
+        let screenTrack = null;
+
+        let quizData = [];
+        let userAnswers = {};
+        let historyData = [];
+
+        window.addEventListener('load', function() {
+            initializeApp();
+        });
+
+        function initializeApp() {
+            if (typeof pdfjsLib !== 'undefined') {
+                pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
+            }
+            
+            if (typeof mermaid !== 'undefined') {
+                mermaid.initialize({ 
+                    startOnLoad: false,
+                    theme: 'default',
+                    securityLevel: 'loose',
+                    flowchart: {
+                        useMaxWidth: true,
+                        htmlLabels: true,
+                        curve: 'basis'
+                    }
+                });
+            }
+
+            if (typeof AgoraRTC !== 'undefined') {
+                initAgoraClient();
+            }
+
+            setupEventListeners();
+            loadHistory();
+            
+            // NEW: Show the default tab (AI Tools) on load
+            showTab('tab-tools', document.getElementById('btn-tools')); 
+        }
+
+        function setupEventListeners() {
+            const pdfInput = document.getElementById('pdfInput');
+            if (pdfInput) {
+                pdfInput.addEventListener('change', handlePdfUpload);
+            }
+        }
+
+        // NEW: Function to handle tab switching
+        function showTab(tabId, element) {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            // Deactivate all tab buttons
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            // Show the selected tab content
+            document.getElementById(tabId).classList.add('active');
+
+            // Activate the clicked button
+            if (element) {
+                element.classList.add('active');
+            }
+            
+            // Scroll to top of the content area
+            window.scrollTo({ top: document.querySelector('.tab-navigation').offsetTop, behavior: 'smooth' });
+        }
+
+
+        function initAgoraClient() {
+            if (!AGORA_CLIENT) {
+                AGORA_CLIENT = AgoraRTC.createClient({ mode: "rtc", codec: "vp8" });
+                setupAgoraEventListeners();
+                console.log('Agora Client initialized');
+            }
+        }
+
+        function setupAgoraEventListeners() {
+            if (!AGORA_CLIENT) return;
+
+            AGORA_CLIENT.on("user-published", async (user, mediaType) => {
+                await AGORA_CLIENT.subscribe(user, mediaType);
+                const id = user.uid;
+                remoteUsers[id] = user;
+
+                if (mediaType === "video") {
+                    const remoteVideoTrack = user.videoTrack;
+                    const remotePlayerContainer = document.getElementById('remote-playerlist');
+
+                    let playerContainer = document.getElementById(`remote-player-${id}`);
+                    if (!playerContainer) {
+                        playerContainer = document.createElement('div');
+                        playerContainer.id = `remote-player-${id}`;
+                        playerContainer.className = 'remote-player-box';
+                        playerContainer.innerHTML = `<span class="player-label">User ${id}</span>`;
+                        remotePlayerContainer.appendChild(playerContainer);
+                    }
+
+                    remoteVideoTrack.play(playerContainer);
+                }
+
+                if (mediaType === "audio") {
+                    user.audioTrack.play();
+                }
+            });
+
+            AGORA_CLIENT.on("user-unpublished", (user) => {
+                const id = user.uid;
+                delete remoteUsers[id];
+                const playerContainer = document.getElementById(`remote-player-${id}`);
+                if (playerContainer) {
+                    playerContainer.remove();
+                }
+            });
+
+            AGORA_CLIENT.on("user-left", (user) => {
+                const id = user.uid;
+                delete remoteUsers[id];
+                const playerContainer = document.getElementById(`remote-player-${id}`);
+                if (playerContainer) {
+                    playerContainer.remove();
+                }
+            });
+        }
+        
+        async function joinCall() {
+            if (!AGORA_CLIENT) {
+                initAgoraClient();
+            }
+
+            if (!AGORA_CLIENT) {
+                console.error("Agora SDK not loaded");
+                document.getElementById('callStatus').innerHTML = '<span class="status-dot" style="background: #ef4444;"></span><span>🔴 SDK Error</span>';
+                return;
+            }
+
+            const channel = 'study_session_room';
+            const uid = Math.floor(Math.random() * 100000); 
+
+            document.getElementById('callStatus').innerHTML = `<span class="status-dot"></span><span>Connecting... UID: ${uid}</span>`;
+
+            try {
+                await AGORA_CLIENT.join(AGORA_APP_ID, channel, null, uid);
+
+                localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack();
+                localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack();
+
+                await AGORA_CLIENT.publish(Object.values(localTracks));
+
+                const localPlayerContainer = document.getElementById('local-player');
+                localPlayerContainer.innerHTML = '<span class="player-label">You</span>';
+                localTracks.videoTrack.play(localPlayerContainer);
+                document.getElementById('callStatus').innerHTML = `<span class="status-dot"></span><span>🟢 In Call (UID: ${uid})</span>`;
+
+            } catch (error) {
+                console.error("Join Error:", error);
+                document.getElementById('callStatus').innerHTML = '<span class="status-dot" style="background: #ef4444;"></span><span>🔴 Failed to join</span>';
+            }
+        }
+
+        async function leaveCall() {
+            if (!AGORA_CLIENT) return;
+            
+            if (AGORA_CLIENT.uid) {
+                if (isScreenSharing) {
+                    await stopScreenShare();
+                }
+                
+                if (localTracks.audioTrack) localTracks.audioTrack.close();
+                if (localTracks.videoTrack) localTracks.videoTrack.close();
+                
+                await AGORA_CLIENT.leave();
+                
+                document.getElementById('local-player').innerHTML = '<span class="player-label">You</span>';
+                document.getElementById('remote-playerlist').innerHTML = '';
+                document.getElementById('callStatus').innerHTML = '<span class="status-dot"></span><span>Call Ended</span>';
+                document.getElementById('screenShareBtn').textContent = '🖥️ Share Screen';
+                remoteUsers = {};
+            } else {
+                document.getElementById('callStatus').innerHTML = '<span class="status-dot"></span><span>Ready to Connect</span>';
+            }
+        }
+
+        async function toggleScreenShare() {
+            if (!AGORA_CLIENT || !AGORA_CLIENT.uid) {
+                document.getElementById('callStatus').innerHTML = '<span class="status-dot" style="background: #f59e0b;"></span><span>⚠️ Join call first</span>';
+                return;
+            }
+
+            if (isScreenSharing) {
+                await stopScreenShare();
+            } else {
+                await startScreenShare();
+            }
+        }
+
+        async function startScreenShare() {
+            if (!AGORA_CLIENT) return;
+            
+            try {
+                document.getElementById('screenShareBtn').textContent = '⏳ Starting...';
+                
+                screenTrack = await AgoraRTC.createScreenVideoTrack({}, "auto");
+                const videoTrack = Array.isArray(screenTrack) ? screenTrack[0] : screenTrack;
+                
+                await AGORA_CLIENT.unpublish([localTracks.videoTrack]);
+                await AGORA_CLIENT.publish([videoTrack]);
+                
+                const localPlayerContainer = document.getElementById('local-player');
+                localPlayerContainer.innerHTML = '<span class="player-label">My Screen</span>';
+                videoTrack.play(localPlayerContainer);
+                
+                isScreenSharing = true;
+                document.getElementById('screenShareBtn').textContent = '🛑 Stop Sharing';
+                document.getElementById('callStatus').innerHTML = '<span class="status-dot"></span><span>🟢 Sharing Screen</span>';
+                
+                videoTrack.on("track-ended", async () => {
+                    await stopScreenShare();
+                });
+                
+            } catch (error) {
+                console.error("Screen share error:", error);
+                document.getElementById('screenShareBtn').textContent = '🖥️ Share Screen';
+            }
+        }
+
+        async function stopScreenShare() {
+            if (!screenTrack) return;
+            
+            try {
+                const videoTrack = Array.isArray(screenTrack) ? screenTrack[0] : screenTrack;
+                
+                await AGORA_CLIENT.unpublish([videoTrack]);
+                videoTrack.close();
+                
+                await AGORA_CLIENT.publish([localTracks.videoTrack]);
+                
+                const localPlayerContainer = document.getElementById('local-player');
+                localPlayerContainer.innerHTML = '<span class="player-label">You</span>';
+                localTracks.videoTrack.play(localPlayerContainer);
+                
+                screenTrack = null;
+                isScreenSharing = false;
+                document.getElementById('screenShareBtn').textContent = '🖥️ Share Screen';
+                document.getElementById('callStatus').innerHTML = '<span class="status-dot"></span><span>🟢 In Call</span>';
+                
+            } catch (error) {
+                console.error("Error stopping screen share:", error);
+            }
+        }
+
+        async function handlePdfUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const pdfStatus = document.getElementById('pdfStatus');
+            const inputTextarea = document.getElementById('inputText');
+
+            pdfStatus.textContent = '📄 Processing PDF...';
+            pdfStatus.style.color = '#fff';
+            inputTextarea.value = '';
+
+            try {
+                const arrayBuffer = await file.arrayBuffer();
+                
+                if (typeof pdfjsLib === 'undefined') {
+                    throw new Error('PDF.js library failed to load');
+                }
+                
+                const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+                let fullText = '';
+                
+                for (let i = 1; i <= pdf.numPages; i++) {
+                    const page = await pdf.getPage(i);
+                    const textContent = await page.getTextContent();
+                    const pageText = textContent.items.map(item => item.str).join(' ');
+                    fullText += pageText + '\n\n';
+                }
+
+                const trimmedText = fullText.trim();
+                inputTextarea.value = trimmedText; 
+                
+                if (trimmedText.length > 0) {
+                    pdfStatus.textContent = `✅ PDF loaded successfully! (${pdf.numPages} pages)`;
+                    pdfStatus.style.color = '#10b981';
+                } else {
+                    pdfStatus.textContent = `⚠️ PDF loaded, but no text extracted`;
+                    pdfStatus.style.color = '#f093fb';
+                }
+
+            } catch (error) {
+                console.error('PDF Error:', error);
+                pdfStatus.textContent = '❌ Error loading PDF';
+                pdfStatus.style.color = '#ef4444';
+            }
+        }
+        
+        // *******************************************************************
+        // ******** REAL GEMINI API CALL INTEGRATION WITH FAILOVER ***********
+        // *******************************************************************
+        
+        // आपके द्वारा प्रदान की गई Gemini API Keys
+        const GEMINI_API_KEYS = [
+            'AIzaSyA_UUQ-cIr1drIEGDa9DthZ-Lkco12WBTM',
+            'AIzaSyASRl-sQu_IANdRQgrpfWZwkdTVCTfUNM4',
+            'AIzaSyBaAyJTzaBQAdQH6LxFP5jPA0PE4xgrAkg',
+            'AIzaSyCcPCnFSPLhfyqNFEcU16z3GklRtmV5Za8'
+        ];
+        // Gemini API Endpoint
+        const GEMINI_ENDPOINT_BASE = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=";
+        
+        // किस Key का उपयोग करना है, उसे ट्रैक करने के लिए इंडेक्स
+        let currentKeyIndex = 0;
+
+        /**
+         * AI API को कॉल करता है, यदि एक Key विफल हो जाती है तो अगली Key पर स्विच करता है।
+         */
+        async function callAIApi(prompt) {
+            const maxAttempts = GEMINI_API_KEYS.length;
+            
+            for (let attempt = 0; attempt < maxAttempts; attempt++) {
+                const currentKey = GEMINI_API_KEYS[currentKeyIndex];
+                const apiURL = `${GEMINI_ENDPOINT_BASE}${currentKey}`;
+                
+                console.log(`Attempting API call with Key Index: ${currentKeyIndex}`);
+
+                try {
+                    const response = await fetch(apiURL, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            contents: [{ 
+                                role: "user", 
+                                parts: [{ text: prompt }] 
+                            }],
+                            // generationConfig वैकल्पिक है, इसे यहाँ जोड़ा जा सकता है यदि आप तापमान आदि सेट करना चाहते हैं
+                            // generationConfig: {
+                            //     temperature: 0.7,
+                            //     maxOutputTokens: 2048,
+                            // }
+                        })
+                    });
+
+                    if (!response.ok) {
+                        const errorData = await response.json().catch(() => ({}));
+                        
+                        // यदि एरर 400, 403 या 429 है, तो Key को अमान्य मानें और अगली पर जाएँ।
+                        if (response.status === 400 || response.status === 403 || response.status === 429) {
+                            console.warn(`Key ${currentKeyIndex} failed (Status: ${response.status}). Switching to next key.`);
+                            // अगली Key पर स्विच करें
+                            currentKeyIndex = (currentKeyIndex + 1) % maxAttempts;
+                            continue; // लूप को जारी रखें और अगली Key का प्रयास करें
+                        }
+                        
+                        // किसी अन्य गंभीर एरर के लिए, कॉल को विफल घोषित करें
+                        console.error("API Error Response:", errorData);
+                        alert(`AI Request Failed: API Error: ${response.status} - ${errorData.error?.message || response.statusText}`);
+                        return null;
+                    }
+
+                    const data = await response.json();
+                    
+                    // Gemini Response से टेक्स्ट एक्सट्रैक्ट करें
+                    const content = data.candidates?.[0]?.content?.parts?.[0]?.text;
+                    
+                    if (!content) {
+                        throw new Error("API response was successful but contained no text content.");
+                    }
+
+                    console.log("AI Response Content (Success):", content);
+                    return content; // सफल होने पर कंटेंट रिटर्न करें
+                    
+                } catch (error) {
+                    // नेटवर्क एरर, JSON पार्सिंग एरर, आदि
+                    console.error("API Call Error:", error);
+                    // अगली Key पर स्विच करें
+                    currentKeyIndex = (currentKeyIndex + 1) % maxAttempts; 
+                    continue; // लूप को जारी रखें
+                }
+            }
+            
+            // यदि सभी Key विफल हो जाते हैं
+            alert("All provided Gemini API keys failed. Please check their validity.");
+            return null;
+        }
+
+        // *******************************************************************
+        // ******** END OF REAL GEMINI API CALL INTEGRATION ******************
+        // *******************************************************************
+
+
+        function getInputText() {
+            const text = document.getElementById('inputText').value.trim();
+            if (!text) {
+                alert('Please enter some text or upload a PDF first!');
+                return null;
+            }
+            return text;
+        }
+
+        function setButtonsDisabled(disabled) {
+            document.getElementById('summaryBtn').disabled = disabled;
+            document.getElementById('quizBtn').disabled = disabled;
+            document.getElementById('diagramBtn').disabled = disabled;
+        }
+
+        function saveToHistory(type, text, result) {
+            const historyItem = {
+                id: Date.now(),
+                type: type,
+                text: text.substring(0, 100) + (text.length > 100 ? '...' : ''),
+                fullText: text,
+                result: result,
+                date: new Date().toLocaleString('en-IN', { 
+                    day: '2-digit', 
+                    month: 'short', 
+                    year: 'numeric', 
+                    hour: '2-digit', 
+                    minute: '2-digit' 
+                })
+            };
+            
+            historyData.unshift(historyItem);
+            
+            if (historyData.length > 10) {
+                historyData = historyData.slice(0, 10);
+            }
+            
+            try {
+                localStorage.setItem('studyGenieHistory', JSON.stringify(historyData));
+            } catch (e) {
+                console.warn('Could not save to localStorage:', e);
+            }
+            
+            displayHistory();
+        }
+
+        function loadHistory() {
+            try {
+                const saved = localStorage.getItem('studyGenieHistory');
+                if (saved) {
+                    historyData = JSON.parse(saved);
+                    displayHistory();
+                }
+            } catch (e) {
+                console.warn('Could not load history:', e);
+            }
+        }
+
+        function displayHistory() {
+            const container = document.getElementById('historyContainer');
+            
+            if (historyData.length === 0) {
+                container.innerHTML = '<p style="color: rgba(255,255,255,0.6); text-align: center; padding: 40px; font-size: 1.1em;">No history yet. Start your learning journey!</p>';
+                return;
+            }
+            
+            container.innerHTML = '';
+            
+            historyData.forEach(item => {
+                const historyItem = document.createElement('div');
+                historyItem.className = 'history-item';
+                historyItem.onclick = () => loadFromHistory(item);
+                
+                const typeEmoji = {
+                    'summary': '📝',
+                    'quiz': '🎯',
+                    'flowchart': '🎨'
+                };
+                
+                historyItem.innerHTML = `
+                    <div class="history-item-title">${typeEmoji[item.type] || '📄'} ${item.type.toUpperCase()}</div>
+                    <div class="history-item-preview">${item.text}</div>
+                    <div class="history-item-date">${item.date}</div>
+                `;
+                
+                container.appendChild(historyItem);
+            });
+        }
+
+        function loadFromHistory(item) {
+            document.getElementById('inputText').value = item.fullText;
+            
+            hideResults();
+            showTab('tab-tools', document.getElementById('btn-tools')); // Switch to AI Tools tab
+            
+            if (item.type === 'summary') {
+                displayResults(item.result);
+                document.getElementById('resultSection').style.display = 'block';
+            } else if (item.type === 'quiz') {
+                displayQuiz(item.result.questions);
+            } else if (item.type === 'flowchart') {
+                document.getElementById('diagramSection').style.display = 'block';
+                displayFlowchart(item.result.code);
+            }
+            
+            window.scrollTo({ top: document.getElementById('loading').offsetTop, behavior: 'smooth' }); // Scroll to results area
+        }
+
+        function clearHistory() {
+            if (confirm('Are you sure you want to clear all history?')) {
+                historyData = [];
+                localStorage.removeItem('studyGenieHistory');
+                displayHistory();
+            }
+        }
+
+        async function summarizeText() {
+            const text = getInputText();
+            if (!text) return;
+
+            setButtonsDisabled(true);
+            showLoading(true);
+            hideResults();
+            document.getElementById('resultSection').style.display = 'block';
+
+            const prompt = `Analyze this text and provide:
+1. A concise summary (2-3 sentences)
+2. 5-7 key topics/points
+
+Text: ${text}
+
+Format as JSON:
+{
+  "summary": "summary here",
+  "topics": ["topic1", "topic2", ...]
+}`;
+
+            // Call the real AI API
+            const content = await callAIApi(prompt);
+            
+            showLoading(false);
+            setButtonsDisabled(false);
+            
+            if (!content) return;
+
+            try {
+                // LLM अक्सर JSON को कोड ब्लॉक के अंदर देते हैं, इसलिए यहाँ उसे निकालने का प्रयास है।
+                const jsonMatch = content.match(/\{[\s\S]*\}/);
+                const jsonString = jsonMatch ? jsonMatch[0] : content;
+                const result = JSON.parse(jsonString);
+                displayResults(result);
+                saveToHistory('summary', text, result);
+            } catch (error) {
+                alert('Error parsing API response: ' + error.message);
+                document.getElementById('summary').textContent = 'Could not parse summary. Raw response: ' + content;
+                document.getElementById('topics').innerHTML = '';
+            }
+        }
+
+        async function generateQuiz() {
+            const text = getInputText();
+            if (!text) return;
+            
+            setButtonsDisabled(true);
+            showLoading(true);
+            hideResults();
+
+            const prompt = `Generate 5 multiple choice questions based on this text. Each question has 4 options with one correct answer. The correct property must be the zero-based index (0-3) of the correct answer.
+
+Text: ${text}
+
+Format as JSON:
+{
+  "questions": [
+    {
+      "question": "question text",
+      "options": ["Option A", "Option B", "Option C", "Option D"],
+      "correct": 0
+    }
+  ]
+}`;
+
+            // Call the real AI API
+            const content = await callAIApi(prompt);
+            
+            showLoading(false);
+            setButtonsDisabled(false);
+            
+            if (!content) return;
+
+            try {
+                const jsonMatch = content.match(/\{[\s\S]*\}/);
+                const jsonString = jsonMatch ? jsonMatch[0] : content;
+                const result = JSON.parse(jsonString);
+
+                if (result.questions && Array.isArray(result.questions)) {
+                    displayQuiz(result.questions);
+                    saveToHistory('quiz', text, result);
+                } else {
+                    alert('Error: Quiz format incorrect or API returned non-JSON.');
+                }
+            } catch (error) {
+                alert('Error parsing quiz response: ' + error.message);
+            }
+        }
+
+        async function generateFlowchart() {
+            const text = getInputText();
+            if (!text) return;
+            
+            setButtonsDisabled(true);
+            showLoading(true);
+            hideResults();
+            document.getElementById('diagramSection').style.display = 'block';
+
+            const prompt = `Create a simple Mermaid flowchart for this text. Focus on main sequence of steps.
+
+Text: ${text}
+
+Rules:
+1. Start with "flowchart TD"
+2. Use simple node IDs: A, B, C
+3. Keep labels short (3-5 words max)
+4. Use: A[Rectangle], B(Rounded), C{Diamond}
+5. Connect with: A --> B
+6. Respond with ONLY raw mermaid code, no JSON, no code blocks`;
+
+            // Call the real AI API
+            let code = await callAIApi(prompt);
+            
+            showLoading(false);
+            setButtonsDisabled(false);
+            
+            if (!code) return;
+
+            // LLM अक्सर कोड ब्लॉक के अंदर देते हैं, इसलिए उन्हें यहाँ हटा दिया जाता है।
+            code = code.replace(/```mermaid/g, '').replace(/```/g, '').trim();
+            
+            await displayFlowchart(code);
+            saveToHistory('flowchart', text, { code: code });
+        }
+
+        async function displayFlowchart(code) {
+            const container = document.getElementById('diagramContainer');
+            
+            try {
+                // Ensure Mermaid is initialized before running
+                if (typeof mermaid === 'undefined') {
+                    throw new Error('Mermaid.js library not loaded.');
+                }
+
+                container.innerHTML = '';
+                const mermaidDiv = document.createElement('div');
+                mermaidDiv.className = 'mermaid';
+                mermaidDiv.textContent = code;
+                container.appendChild(mermaidDiv);
+                
+                await mermaid.run({
+                    querySelector: '.mermaid'
+                });
+                
+            } catch (error) {
+                console.error('Mermaid Error:', error);
+                container.innerHTML = `
+                    <div style="padding: 30px; text-align: center;">
+                        <div style="color: #f44336; font-size: 18px; margin-bottom: 10px;">⚠️ Rendering Failed</div>
+                        <div style="color: #666;">Raw code: <pre>${code}</pre></div>
+                    </div>
+                `;
+            }
+        }
+
+        function displayResults(result) {
+            document.getElementById('summary').textContent = result.summary;
+            
+            const topicsList = document.getElementById('topics');
+            topicsList.innerHTML = '';
+            if (Array.isArray(result.topics)) {
+                result.topics.forEach(topic => {
+                    const li = document.createElement('li');
+                    li.textContent = topic;
+                    topicsList.appendChild(li);
+                });
+            }
+
+            document.getElementById('resultSection').style.display = 'block';
+            document.getElementById('quizSection').style.display = 'none';
+            document.getElementById('diagramSection').style.display = 'none';
+        }
+
+        function displayQuiz(questions) {
+            quizData = questions;
+            userAnswers = {};
+            
+            const container = document.getElementById('quizContainer');
+            container.innerHTML = '';
+
+            questions.forEach((q, index) => {
+                const card = document.createElement('div');
+                card.className = 'question-card';
+                
+                const questionText = document.createElement('div');
+                questionText.className = 'question-text';
+                questionText.textContent = `${index + 1}. ${q.question}`;
+                card.appendChild(questionText);
+
+                const optionsDiv = document.createElement('div');
+                optionsDiv.className = 'options';
+
+                q.options.forEach((option, optIndex) => {
+                    const optionDiv = document.createElement('div');
+                    optionDiv.className = 'option';
+                    optionDiv.textContent = option;
+                    optionDiv.onclick = () => selectOption(index, optIndex, optionDiv);
+                    optionsDiv.appendChild(optionDiv);
+                });
+
+                card.appendChild(optionsDiv);
+                container.appendChild(card);
+            });
+
+            document.getElementById('quizSection').style.display = 'block';
+            document.getElementById('submitBtn').style.display = 'block';
+            document.getElementById('score').textContent = '';
+            document.getElementById('resultSection').style.display = 'none';
+            document.getElementById('diagramSection').style.display = 'none';
+        }
+
+        function selectOption(questionIndex, optionIndex, element) {
+            const options = element.parentElement.children;
+            for (let opt of options) {
+                opt.classList.remove('selected', 'correct', 'wrong');
+            }
+            element.classList.add('selected');
+            userAnswers[questionIndex] = optionIndex;
+        }
+
+        function submitQuiz() {
+            let correct = 0;
+            const questions = document.querySelectorAll('#quizSection .question-card');
+
+            questions.forEach((card, index) => {
+                const options = card.querySelectorAll('.option');
+                const userAnswer = userAnswers[index];
+                const correctAnswer = quizData[index].correct;
+
+                options.forEach((opt, optIndex) => {
+                    opt.classList.remove('correct', 'wrong');
+                    if (optIndex === correctAnswer) {
+                        opt.classList.add('correct');
+                    }
+                    if (userAnswer === optIndex && optIndex !== correctAnswer) {
+                        opt.classList.add('wrong');
+                    }
+                    opt.onclick = null;
+                });
+
+                if (userAnswer === correctAnswer) {
+                    correct++;
+                }
+            });
+
+            const score = document.getElementById('score');
+            score.textContent = `Your Score: ${correct}/${quizData.length} (${Math.round(correct/quizData.length*100)}%)`;
+            document.getElementById('submitBtn').style.display = 'none';
+        }
+
+        function showLoading(show) {
+            document.getElementById('loading').style.display = show ? 'block' : 'none';
+        }
+
+        function hideResults() {
+            document.getElementById('resultSection').style.display = 'none';
+            document.getElementById('quizSection').style.display = 'none';
+            document.getElementById('diagramSection').style.display = 'none';
+        }
+    </script>
+</body>
+</html>
