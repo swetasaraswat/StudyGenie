@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StudyGenie — AI Learning Platform</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mermaid/10.6.1/mermaid.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
+<script src="https://download.agora.io/sdk/release/AgoraRTC_N-4.19.0.js"></script>
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/components.css">
+</head>
+<body>
+<div class="bg-animation"></div>
+
+<div class="container">
+  <div class="header">
+    <h1>📚 StudyGenie</h1>
+    <p class="subtitle">Next-Gen AI Learning Platform</p>
+  </div>
+
+  <div class="tab-navigation">
+    <button class="tab-button active" id="btn-tools" onclick="showTab('tab-tools', this)">🛠️ Study With AI</button>
+    <button class="tab-button" id="btn-call" onclick="showTab('tab-call', this)">📞 Connect With Friends</button>
+    <button class="tab-button" id="btn-history" onclick="showTab('tab-history', this)">📜 Recall Your History</button>
+  </div>
+
+  <div id="tab-tools" class="tab-content active">
+    <div class="card input-section">
+      <label for="inputText">📝 Your Content</label>
+      <textarea id="inputText" placeholder="Paste your text, notes, articles, or study material here..."></textarea>
+
+      <div style="margin-top: 30px;">
+        <label for="pdfInput">📄 Upload PDF Document</label>
+        <input type="file" id="pdfInput" accept=".pdf">
+        <div id="pdfStatus"></div>
+      </div>
+    </div>
+
+    <div class="button-group">
+      <button class="btn-summarize" onclick="summarizeText()" id="summaryBtn">📝 Smart Summary</button>
+      <button class="btn-quiz" onclick="generateQuiz()" id="quizBtn">🎯 Generate Quiz</button>
+      <button class="btn-diagram" onclick="generateFlowchart()" id="diagramBtn">🎨 Create Flowchart</button>
+    </div>
+
+    <div class="loading" id="loading">
+      <div class="loading-spinner"></div>
+      <div class="loading-text">Processing your request...</div>
+    </div>
+
+    <div class="result-section" id="resultSection">
+      <div class="result-box">
+        <h2>📄 Summary</h2>
+        <p id="summary"></p>
+      </div>
+      <div class="result-box">
+        <h2>🔑 Key Topics</h2>
+        <ul class="topics-list" id="topics"></ul>
+      </div>
+    </div>
+
+    <div class="quiz-section" id="quizSection">
+      <div class="result-box">
+        <h2>🎯 Quiz Time!</h2>
+        <div id="quizContainer"></div>
+        <button class="btn-quiz submit-quiz" onclick="submitQuiz()" id="submitBtn" style="display:none; width: 100%; margin-top: 20px;">Submit Quiz</button>
+        <div class="score" id="score"></div>
+      </div>
+    </div>
+
+    <div class="diagram-section" id="diagramSection">
+      <div class="result-box">
+        <h2>🎨 Visual Flowchart</h2>
+        <p class="card-subtitle">A visual representation of your text</p>
+        <div class="diagram-container">
+          <div id="diagramContainer"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="tab-call" class="tab-content">
+    <div class="card">
+      <h2 class="card-title">📞 Connect With Friends</h2>
+      <p class="card-subtitle">Connect with others for a collaborative study environment.</p>
+      <div id="callStatus" class="status-badge">
+        <span class="status-dot"></span>
+        <span>Ready to Connect</span>
+      </div>
+
+      <div class="button-group">
+        <button class="btn-summarize" onclick="joinCall()">▶️ Join Room</button>
+        <button class="btn-quiz" onclick="leaveCall()">⏹️ Leave Call</button>
+        <button class="btn-diagram" onclick="toggleScreenShare()" id="screenShareBtn">🖥️ Share Screen</button>
+      </div>
+
+      <div class="video-container">
+        <div id="local-player" class="video-box">
+          <span class="player-label">You</span>
+        </div>
+        <div id="remote-playerlist" style="display: flex; gap: 25px; flex-wrap: wrap;"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="tab-history" class="tab-content">
+    <div class="card history-section">
+      <h2 class="card-title">📜 Activity History</h2>
+      <p class="card-subtitle">Your last 10 sessions — click to restore</p>
+      <div id="historyContainer">
+        <p class="history-empty">No history yet. Start your learning journey!</p>
+      </div>
+      <button class="clear-history-btn" onclick="clearHistory()">🗑️ Clear All</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/core/state.js"></script>
+<script src="js/core/utils.js"></script>
+<script src="js/core/api.js"></script>
+<script src="js/core/history.js"></script>
+<script src="js/features/pdfUpload.js"></script>
+<script src="js/features/summary.js"></script>
+<script src="js/features/quiz.js"></script>
+<script src="js/features/flowchart.js"></script>
+<script src="js/features/videoCall.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
