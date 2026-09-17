@@ -1,6 +1,6 @@
 # StudyGenie — AI Smart Study Partner
 
-**Live demo:** [dancing-praline-eae563.netlify.app](https://dancing-praline-eae563.netlify.app/)
+**Live demo:** [studygeniee.netlify.app]
 **Demo video:** [Watch on Google Drive](https://drive.google.com/file/d/1FttWLdgWehP5iKnffx-T2Iozw4B76bzI/view?usp=drivesdk)
 
 Built at HackFest 2025, StudyGenie turns messy study material — a PDF, pasted notes, a lecture transcript — into a clean summary, an auto-generated quiz, and a visual flowchart in seconds, and lets students work through it together over live video.
