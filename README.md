@@ -91,7 +91,7 @@ Then visit `http://localhost:5500`. AI features require a `GEMINI_API_KEYS` envi
 
 Team StudyGenie — HackFest 2025
 
-- **Sweta Saraswat** — UI/UX design, Agora video call & screen-share integration, deployment
+- **Sweta Saraswat** — Leader, AI integration, UI/UX, webRTC layer and deployment. 
 - Parthiv Yadav
 - Kunika Varshney
 - Ujjwal Malhotra
